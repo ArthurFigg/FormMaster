@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Painel — FormMaster</title>
+    <link rel="stylesheet" href="/static/css/base.css">
+</head>
+<body>
+    <div style="max-width:800px;margin:40px auto;padding:0 20px">
+        <h1>FormMaster</h1>
+        <p>Olá, {{ usuario.email }}</p>
+
+        <div style="margin:24px 0;display:flex;gap:12px">
+            <form method="post" action="/formularios/">
+                <button type="submit" class="btn-primario" style="width:auto;padding:10px 20px">+ Manual</button>
+            </form>
+            <a href="/formularios/wizard" class="btn-primario" style="padding:10px 20px;display:inline-block">+ Com IA</a>
+        </div>
+
+        <h2>Seus formulários</h2>
+        {% if formularios %}
+        <table style="width:100%;border-collapse:collapse;margin-top:12px">
+            <thead>
+                <tr style="border-bottom:2px solid #e5e7eb">
+                    <th style="text-align:left;padding:8px">Título</th>
+                    <th style="text-align:left;padding:8px">Status</th>
+                    <th style="text-align:left;padding:8px">Criado em</th>
+                    <th style="padding:8px"></th>
+                </tr>
+            </thead>
+            <tbody>
+            {% for f in formularios %}
+                <tr style="border-bottom:1px solid #e5e7eb">
+                    <td style="padding:8px">{{ f.title }}</td>
+                    <td style="padding:8px">{{ f.status }}</td>
+                    <td style="padding:8px">{{ f.created_at.strftime('%d/%m/%Y') }}</td>
+                    <td style="padding:8px">
+                        <a href="/formularios/{{ f.id }}/painel">Ver painel</a>
+                    </td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <p style="color:#6b7280">Nenhum formulário criado ainda.</p>
+        {% endif %}
+
+        <form method="post" action="/auth/logout" style="margin-top:40px">
+            <button type="submit" style="background:none;border:none;color:#6b7280;cursor:pointer;font-size:0.875rem">Sair</button>
+        </form>
+    </div>
+</body>
+</html>

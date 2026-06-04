@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cadastro — FormMaster</title>
+    <link rel="stylesheet" href="/static/css/base.css">
+</head>
+<body>
+    <div class="auth-container">
+        <h1>FormMaster</h1>
+        <h2>Criar conta</h2>
+
+        {% if erro %}
+        <p class="mensagem-erro">{{ erro }}</p>
+        {% endif %}
+
+        <form method="post" action="/auth/cadastro">
+            <div class="campo">
+                <label for="email">E-mail</label>
+                <input type="email" id="email" name="email" required autofocus>
+            </div>
+            <div class="campo">
+                <label for="senha">Senha</label>
+                <input type="password" id="senha" name="senha" required minlength="6">
+            </div>
+            <button type="submit" class="btn-primario">Criar conta</button>
+        </form>
+
+        <p class="link-alternativo">Já tem conta? <a href="/auth/login">Entre aqui</a></p>
+    </div>
+</body>
+</html>

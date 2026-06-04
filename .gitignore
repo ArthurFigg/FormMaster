@@ -36,5 +36,8 @@ htmlcov/
 .DS_Store
 Thumbs.db
 
+# uv lockfile (manter no repo para reprodutibilidade)
+# uv.lock — versionado intencionalmente
+
 # Alembic (gerado automaticamente — não versionar)
 alembic/versions/__pycache__/

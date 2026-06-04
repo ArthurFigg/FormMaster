@@ -11,7 +11,7 @@ Plataforma web onde qualquer pessoa cria formulários personalizados com lógica
 |---|---|
 | Backend | FastAPI + PostgreSQL |
 | Autenticação | JWT (python-jose) armazenado em cookie httponly |
-| IA | Gemini Flash API (google-generativeai) |
+| IA | Gemini Flash API (google-genai) |
 | Frontend | HTML + CSS + JS puro (Jinja2 via FastAPI) |
 | Gráficos | Chart.js (radar) |
 | Deploy | Railway ou Render |

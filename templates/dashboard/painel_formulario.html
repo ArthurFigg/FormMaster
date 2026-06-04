@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ formulario.title }} — FormMaster</title>
+    <link rel="stylesheet" href="/static/css/base.css">
+</head>
+<body>
+    <div style="max-width:800px;margin:40px auto;padding:0 20px">
+        <a href="/dashboard" style="font-size:0.875rem;color:#6b7280">← Painel</a>
+
+        <h1 style="margin-top:16px">{{ formulario.title }}</h1>
+        <p style="color:#6b7280">Status: <strong>{{ formulario.status }}</strong></p>
+
+        <div style="display:flex;gap:12px;margin-top:20px;align-items:center">
+            <a href="/formularios/{{ formulario.id }}/editar">Editar</a>
+
+            {% if formulario.status == "draft" %}
+            <form method="post" action="/formularios/{{ formulario.id }}/publicar">
+                <button type="submit" class="btn-primario" style="width:auto;padding:8px 16px">Publicar</button>
+            </form>
+            {% endif %}
+
+            {% if formulario.status == "active" %}
+            <button
+                onclick="if(confirm('Encerrar este formulário? Ele ficará inacessível para novos respondentes.')) { fetch('/formularios/{{ formulario.id }}/encerrar', {method:'POST'}).then(() => location.reload()) }"
+                style="padding:8px 16px;background:#dc2626;color:#fff;border:none;border-radius:6px;cursor:pointer">
+                Encerrar
+            </button>
+            {% endif %}
+        </div>
+
+        <p style="margin-top:32px;color:#6b7280;font-size:0.875rem">
+            Painel completo disponível na spec 09.
+        </p>
+    </div>
+</body>
+</html>
