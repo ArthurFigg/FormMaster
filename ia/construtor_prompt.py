@@ -133,7 +133,7 @@ def chamar_gemini(prompt: str) -> dict:
         texto = re.sub(r"\s*```$", "", texto, flags=re.MULTILINE)
         return json.loads(texto)
     except Exception as e:
-        logging.exception("Falha ao chamar Gemini")
+        logging.warning("Falha ao chamar Gemini: %s", e)
         raise ValueError(f"Falha ao chamar Gemini: {e}") from e
 
 
