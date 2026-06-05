@@ -55,3 +55,6 @@ Implementa `respostas/motor.py` com toda a lógica de avaliação de regras e cl
 - `action_value` → sempre inteiro positivo no banco; o motor aplica `+=` para `add_score` e `-=` para `subtract_score` conforme CLAUDE.md
 - Comparação de tipos → sem cast: strings comparadas como string, inteiros como int, conforme tipo do `conditions[].value` no JSONB
 - Testes → sem fixtures de banco, apenas dicts Python; testes puramente unitários
+
+---
+**Status:** concluida em 2026-06-05
