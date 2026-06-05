@@ -51,3 +51,6 @@ Implementa o ORM de respostas, o endpoint `POST /r/{form_id}`, todas as validaç
 - Motor → chamado com dados carregados do banco (regras, thresholds, variáveis do formulário) + `answers` recebidos
 - `answers` → deserializado para o tipo correto antes de chamar o motor (checkbox como lista, scale/number como int)
 - Formulários `active` sem nenhuma regra nem threshold → motor retorna `(None, {})`, `assigned_group_id=null` é salvo normalmente
+
+---
+**Status:** concluida em 2026-06-05

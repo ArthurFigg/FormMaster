@@ -9,7 +9,7 @@ from database import Base
 # Descomente o import do orm ao implementar cada spec:
 from auth import orm as _auth_orm  # noqa — spec 02
 from formularios import orm as _formularios_orm  # noqa — spec 03
-# from respostas import orm as _respostas_orm  # noqa — spec 07
+from respostas import orm as _respostas_orm  # noqa — spec 07
 
 config = context.config
 

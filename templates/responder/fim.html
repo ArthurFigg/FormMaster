@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Obrigado — FormMaster</title>
+  <link rel="stylesheet" href="/static/css/base.css">
+</head>
+<body>
+  <div style="max-width:520px;margin:80px auto;padding:0 24px;text-align:center">
+    {% if resposta and grupo %}
+      {% if formulario and formulario.finish_mode == 'show_group' %}
+        <h1 style="font-size:1.5rem;font-weight:700;margin-bottom:12px">
+          Você foi classificado como: <strong>{{ grupo.name }}</strong>
+        </h1>
+      {% elif formulario and formulario.finish_mode == 'custom' and grupo.finish_message %}
+        <h1 style="font-size:1.5rem;font-weight:700;margin-bottom:12px">{{ grupo.finish_message }}</h1>
+      {% else %}
+        <h1 style="font-size:1.5rem;font-weight:700;margin-bottom:12px">Obrigado por participar!</h1>
+      {% endif %}
+    {% else %}
+      <h1 style="font-size:1.5rem;font-weight:700;margin-bottom:12px">Obrigado por participar!</h1>
+    {% endif %}
+
+    <p style="font-size:0.875rem;color:#6b7280;margin-top:40px">
+      Quer criar seus próprios formulários?
+      <a href="/auth/cadastro">Cadastre-se</a>
+    </p>
+  </div>
+</body>
+</html>
