@@ -68,3 +68,6 @@ Implementa o endpoint público `GET /r/{form_id}` e os três templates do respon
 - CTA no rodapé → presente em todos os 3 templates do respondente
 - Scale slider → `<input type="range">` com valores `min` e `max` exibidos como labels nas extremidades via HTML/CSS
 - Dados pessoais → campos simples de texto/email/tel; sem validação de formato além do HTML nativo
+
+---
+**Status:** concluida em 2026-06-05

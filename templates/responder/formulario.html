@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{{ formulario.title }} — FormMaster</title>
+  <link rel="stylesheet" href="/static/css/base.css">
+  <link rel="stylesheet" href="/static/css/respondente.css">
+</head>
+<body>
+  <div class="resp-pagina">
+    <h1 class="resp-titulo">{{ formulario.title }}</h1>
+
+    <form method="post" action="/r/{{ formulario.id }}">
+
+      {# Dados pessoais — só exibe a seção se ao menos um campo estiver ativo #}
+      {% if formulario.collect_name or formulario.collect_email or formulario.collect_phone %}
+      <div class="resp-secao-pessoal">
+        <h2>Seus dados</h2>
+
+        {% if formulario.collect_name %}
+        <div class="resp-campo">
+          <label for="respondent_name">
+            Nome{% if formulario.name_required %} <span style="color:#dc2626">*</span>{% endif %}
+          </label>
+          <input
+            type="text"
+            id="respondent_name"
+            name="respondent_name"
+            {% if formulario.name_required %}required{% endif %}
+            autocomplete="name"
+          >
+        </div>
+        {% endif %}
+
+        {% if formulario.collect_email %}
+        <div class="resp-campo">
+          <label for="respondent_email">
+            Email{% if formulario.email_required or formulario.block_resubmit %} <span style="color:#dc2626">*</span>{% endif %}
+          </label>
+          <input
+            type="email"
+            id="respondent_email"
+            name="respondent_email"
+            {% if formulario.email_required or formulario.block_resubmit %}required{% endif %}
+            autocomplete="email"
+          >
+        </div>
+        {% endif %}
+
+        {% if formulario.collect_phone %}
+        <div class="resp-campo">
+          <label for="respondent_phone">
+            Telefone{% if formulario.phone_required %} <span style="color:#dc2626">*</span>{% endif %}
+          </label>
+          <input
+            type="tel"
+            id="respondent_phone"
+            name="respondent_phone"
+            {% if formulario.phone_required %}required{% endif %}
+            autocomplete="tel"
+          >
+        </div>
+        {% endif %}
+      </div>
+      {% endif %}
+
+      {# Perguntas #}
+      {% for pergunta in formulario.perguntas | sort(attribute='order') %}
+      <div class="resp-pergunta">
+        <div class="resp-pergunta-texto">
+          {{ pergunta.text }}{% if pergunta.required %}<span class="obrig">*</span>{% endif %}
+        </div>
+
+        {% if pergunta.type == 'text' %}
+          <input
+            class="resp-input-text"
+            type="text"
+            name="answer_{{ pergunta.id }}"
+            {% if pergunta.required %}required{% endif %}
+          >
+
+        {% elif pergunta.type == 'number' %}
+          <input
+            class="resp-input-number"
+            type="number"
+            name="answer_{{ pergunta.id }}"
+            {% if pergunta.required %}required{% endif %}
+          >
+
+        {% elif pergunta.type == 'multiple_choice' %}
+          <div class="resp-opcoes">
+            {% for opcao in pergunta.options %}
+            <label class="resp-opcao">
+              <input
+                type="radio"
+                name="answer_{{ pergunta.id }}"
+                value="{{ opcao }}"
+                {% if pergunta.required %}required{% endif %}
+              >
+              <span>{{ opcao }}</span>
+            </label>
+            {% endfor %}
+          </div>
+
+        {% elif pergunta.type == 'checkbox' %}
+          <div class="resp-opcoes">
+            {% for opcao in pergunta.options %}
+            <label class="resp-opcao">
+              <input
+                type="checkbox"
+                name="answer_{{ pergunta.id }}"
+                value="{{ opcao }}"
+              >
+              <span>{{ opcao }}</span>
+            </label>
+            {% endfor %}
+          </div>
+
+        {% elif pergunta.type == 'scale' %}
+          {% set scale_min = pergunta.options['min'] if pergunta.options and 'min' in pergunta.options else 1 %}
+          {% set scale_max = pergunta.options['max'] if pergunta.options and 'max' in pergunta.options else 10 %}
+          <div class="resp-scale-wrap">
+            <input
+              type="range"
+              name="answer_{{ pergunta.id }}"
+              min="{{ scale_min }}"
+              max="{{ scale_max }}"
+              value="{{ scale_min }}"
+              {% if pergunta.required %}required{% endif %}
+            >
+            <div class="resp-scale-labels">
+              <span>{{ scale_min }}</span>
+              <span>{{ scale_max }}</span>
+            </div>
+          </div>
+
+        {% endif %}
+      </div>
+      {% endfor %}
+
+      <div class="resp-submit">
+        <button type="submit" class="resp-btn-enviar">Enviar respostas</button>
+      </div>
+
+    </form>
+
+    <div class="resp-rodape">
+      Quer criar seus próprios formulários?
+      <a href="/auth/cadastro">Cadastre-se</a>
+    </div>
+  </div>
+</body>
+</html>
