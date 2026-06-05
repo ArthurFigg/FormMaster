@@ -63,3 +63,6 @@ Implementa todos os modelos ORM do domínio de formulários, o repositório, os 
 - `painel_formulario.html` nesta spec → stub básico; expandido na spec 09
 - Templates de dashboard nesta spec → stubs funcionais para navegação; expandidos na spec 09
 - Rotas de dashboard (`GET /`, `GET /dashboard`, `GET /formularios/{id}/painel`) ficam em `formularios/rotas.py` — o domínio de dashboard tem serviços de agregação (spec 09), não rotas próprias de navegação
+
+---
+**Status:** concluida em 2026-06-05
