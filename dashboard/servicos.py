@@ -1,15 +1,14 @@
 import uuid
 
+from sqlalchemy import func
 from sqlalchemy.orm import Session
 
 from dashboard.modelos import ItemRespondente, MediaGrupo, ResumoGrupo
+from formularios.orm import Formulario, Grupo, Pergunta, Variavel
+from respostas.orm import Resposta
 
 
 def agregar_por_grupo(db: Session, form_id: uuid.UUID) -> list[ResumoGrupo]:
-    from sqlalchemy import func
-    from formularios.orm import Grupo
-    from respostas.orm import Resposta
-
     grupos = db.query(Grupo).filter(Grupo.form_id == form_id).all()
     resultado = []
     for grupo in grupos:
@@ -32,9 +31,6 @@ def agregar_por_grupo(db: Session, form_id: uuid.UUID) -> list[ResumoGrupo]:
 
 
 def calcular_medias_por_grupo(db: Session, form_id: uuid.UUID) -> list[MediaGrupo]:
-    from formularios.orm import Grupo, Variavel
-    from respostas.orm import Resposta
-
     variaveis = db.query(Variavel).filter(Variavel.form_id == form_id).all()
     if not variaveis:
         return []
@@ -59,9 +55,6 @@ def calcular_medias_por_grupo(db: Session, form_id: uuid.UUID) -> list[MediaGrup
 
 
 def listar_respondentes(db: Session, form_id: uuid.UUID) -> list[ItemRespondente]:
-    from formularios.orm import Grupo
-    from respostas.orm import Resposta
-
     respostas = (
         db.query(Resposta)
         .filter(Resposta.form_id == form_id)
@@ -88,9 +81,6 @@ def listar_respondentes(db: Session, form_id: uuid.UUID) -> list[ItemRespondente
 
 
 def buscar_detalhe_resposta(db: Session, response_id: uuid.UUID) -> dict | None:
-    from formularios.orm import Formulario, Grupo, Pergunta, Variavel
-    from respostas.orm import Resposta
-
     resposta = db.get(Resposta, response_id)
     if not resposta:
         return None
@@ -133,9 +123,6 @@ def buscar_detalhe_resposta(db: Session, response_id: uuid.UUID) -> dict | None:
 
 
 def buscar_historico_usuario(db: Session, user_id: uuid.UUID, limite: int = 20) -> list[dict]:
-    from formularios.orm import Formulario, Grupo
-    from respostas.orm import Resposta
-
     respostas = (
         db.query(Resposta)
         .filter(Resposta.user_id == user_id)
