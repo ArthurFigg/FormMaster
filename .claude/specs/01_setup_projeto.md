@@ -45,3 +45,6 @@ Cria toda a estrutura de pastas, arquivos de configuração e scaffolding do For
 - `config.py` exporta instância única `configuracoes` importável por todos os módulos
 - `get_db()` em `database.py` — gerador padrão do SQLAlchemy para injeção de sessão via `Depends()`
 - `DEBUG=False` por padrão; `True` em desenvolvimento local para desligar `secure` no cookie JWT
+
+---
+**Status:** concluida em 2026-06-05
