@@ -42,3 +42,6 @@ Implementa o fluxo guiado de geração de formulário via Gemini Flash: o mestre
 - Formulário criado → usa `criar_formulario_de_ia()` que persiste os dados via INSERT direto (não via PATCH de reconciliação)
 - `conditions[].field` e `action_target` gravados como nome conceitual string — placeholder para o mestre mapear no editor
 - `group_thresholds.order` no import da IA → atribuído sequencialmente pela primeira ocorrência de cada grupo no array conforme CLAUDE.md
+
+---
+**Status:** concluida em 2026-06-05
