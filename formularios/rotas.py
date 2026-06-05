@@ -30,10 +30,32 @@ def dashboard(
     usuario: Usuario = Depends(get_usuario_atual),
     db: Session = Depends(get_db),
 ):
-    formularios = repo.listar_por_dono(db, usuario.id)
+    from sqlalchemy import func
+    from dashboard.servicos import buscar_historico_usuario
+    from respostas.orm import Resposta
+
+    formularios_lista = repo.listar_por_dono(db, usuario.id)
+    contagens: dict[str, int] = {}
+    if formularios_lista:
+        form_ids = [f.id for f in formularios_lista]
+        rows = (
+            db.query(Resposta.form_id, func.count(Resposta.id))
+            .filter(Resposta.form_id.in_(form_ids))
+            .group_by(Resposta.form_id)
+            .all()
+        )
+        contagens = {str(fid): cnt for fid, cnt in rows}
+
+    historico = buscar_historico_usuario(db, usuario.id)
     return templates.TemplateResponse(
         "dashboard/index.html",
-        {"request": request, "usuario": usuario, "formularios": formularios, "historico": []},
+        {
+            "request": request,
+            "usuario": usuario,
+            "formularios": formularios_lista,
+            "contagens": contagens,
+            "historico": historico,
+        },
     )
 
 
@@ -156,14 +178,34 @@ def painel_formulario(
     usuario: Usuario = Depends(get_usuario_atual),
     db: Session = Depends(get_db),
 ):
+    from fastapi import HTTPException
+    import dashboard.servicos as dash_servicos
+
     formulario = repo.buscar_por_id(db, form_id)
     if not formulario:
-        from fastapi import HTTPException
         raise HTTPException(status_code=404, detail="Formulário não encontrado.")
     if formulario.owner_id != usuario.id:
-        from fastapi import HTTPException
         raise HTTPException(status_code=403, detail="Acesso negado.")
+
+    resumos_grupos = dash_servicos.agregar_por_grupo(db, form_id)
+    medias_grupos = dash_servicos.calcular_medias_por_grupo(db, form_id)
+    respondentes = dash_servicos.listar_respondentes(db, form_id)
+    nomes_variaveis = [v.name for v in formulario.variaveis]
+    radar_por_grupo = [
+        {"nome": mg.nome, "dados": [round(mg.scores_medios.get(n, 0), 1) for n in nomes_variaveis]}
+        for mg in medias_grupos
+    ]
+
     return templates.TemplateResponse(
         "dashboard/painel_formulario.html",
-        {"request": request, "formulario": formulario},
+        {
+            "request": request,
+            "formulario": formulario,
+            "resumos_grupos": resumos_grupos,
+            "respondentes": respondentes,
+            "tem_variaveis": bool(nomes_variaveis),
+            "nomes_variaveis": nomes_variaveis,
+            "radar_por_grupo": radar_por_grupo,
+            "modo_drill": False,
+        },
     )

@@ -64,3 +64,6 @@ Implementa o painel completo do mestre: painel principal com lista de formulári
 - Respondentes sem nome → exibidos como "Anônimo" no painel
 - Histórico no painel principal → limitado às últimas 20 respostas por padrão (sem paginação para MVP)
 - Lista de respondentes no painel do formulário → sem paginação para MVP; todos exibidos
+
+---
+**Status:** concluida em 2026-06-05

@@ -1,54 +1,82 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Painel — FormMaster</title>
-    <link rel="stylesheet" href="/static/css/base.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Painel — FormMaster</title>
+  <link rel="stylesheet" href="/static/css/base.css">
+  <link rel="stylesheet" href="/static/css/dashboard.css">
 </head>
 <body>
-    <div style="max-width:800px;margin:40px auto;padding:0 20px">
-        <h1>FormMaster</h1>
-        <p>Olá, {{ usuario.email }}</p>
+  <div class="dash-wrap">
 
-        <div style="margin:24px 0;display:flex;gap:12px">
-            <form method="post" action="/formularios/">
-                <button type="submit" class="btn-primario" style="width:auto;padding:10px 20px">+ Manual</button>
-            </form>
-            <a href="/formularios/wizard" class="btn-primario" style="padding:10px 20px;display:inline-block">+ Com IA</a>
-        </div>
-
-        <h2>Seus formulários</h2>
-        {% if formularios %}
-        <table style="width:100%;border-collapse:collapse;margin-top:12px">
-            <thead>
-                <tr style="border-bottom:2px solid #e5e7eb">
-                    <th style="text-align:left;padding:8px">Título</th>
-                    <th style="text-align:left;padding:8px">Status</th>
-                    <th style="text-align:left;padding:8px">Criado em</th>
-                    <th style="padding:8px"></th>
-                </tr>
-            </thead>
-            <tbody>
-            {% for f in formularios %}
-                <tr style="border-bottom:1px solid #e5e7eb">
-                    <td style="padding:8px">{{ f.title }}</td>
-                    <td style="padding:8px">{{ f.status }}</td>
-                    <td style="padding:8px">{{ f.created_at.strftime('%d/%m/%Y') }}</td>
-                    <td style="padding:8px">
-                        <a href="/formularios/{{ f.id }}/painel">Ver painel</a>
-                    </td>
-                </tr>
-            {% endfor %}
-            </tbody>
-        </table>
-        {% else %}
-        <p style="color:#6b7280">Nenhum formulário criado ainda.</p>
-        {% endif %}
-
-        <form method="post" action="/auth/logout" style="margin-top:40px">
-            <button type="submit" style="background:none;border:none;color:#6b7280;cursor:pointer;font-size:0.875rem">Sair</button>
+    <div class="dash-topo">
+      <h1>FormMaster</h1>
+      <div class="dash-topo-acoes">
+        <form method="post" action="/formularios/">
+          <button type="submit" class="btn-criar-secundario">+ Manual</button>
         </form>
+        <a href="/formularios/wizard" class="btn-criar">+ Com IA</a>
+        <form method="post" action="/auth/logout">
+          <button type="submit" style="background:none;border:none;color:#9ca3af;cursor:pointer;font-size:0.875rem;padding:8px 4px">Sair</button>
+        </form>
+      </div>
     </div>
+
+    <div class="dash-secao">
+      <h2>Seus formulários</h2>
+      {% if formularios %}
+      <table class="dash-tabela">
+        <thead>
+          <tr>
+            <th>Título</th>
+            <th>Status</th>
+            <th>Criado em</th>
+            <th>Respostas</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for f in formularios %}
+          <tr>
+            <td>{{ f.title }}</td>
+            <td><span class="status-badge status-{{ f.status }}">{{ f.status }}</span></td>
+            <td>{{ f.created_at.strftime('%d/%m/%Y') }}</td>
+            <td>{{ contagens.get(f.id | string, 0) }}</td>
+            <td><a href="/formularios/{{ f.id }}/painel">Ver painel →</a></td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      {% else %}
+      <p class="dash-vazio">Nenhum formulário criado ainda. Comece com "+ Manual" ou "+ Com IA".</p>
+      {% endif %}
+    </div>
+
+    {% if historico %}
+    <div class="dash-secao">
+      <h2>Formulários que você respondeu</h2>
+      <table class="dash-tabela">
+        <thead>
+          <tr>
+            <th>Formulário</th>
+            <th>Resultado</th>
+            <th>Data</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for item in historico %}
+          <tr>
+            <td>{{ item.form_title }}</td>
+            <td>{{ item.grupo }}</td>
+            <td>{{ item.data.strftime('%d/%m/%Y') if item.data else '—' }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% endif %}
+
+  </div>
 </body>
 </html>

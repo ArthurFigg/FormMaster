@@ -1,39 +1,230 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ formulario.title }} — FormMaster</title>
-    <link rel="stylesheet" href="/static/css/base.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{{ formulario.title }} — FormMaster</title>
+  <link rel="stylesheet" href="/static/css/base.css">
+  <link rel="stylesheet" href="/static/css/dashboard.css">
+  {% if not modo_drill %}
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4/dist/chart.umd.min.js"></script>
+  {% elif detalhe and detalhe.tem_variaveis %}
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4/dist/chart.umd.min.js"></script>
+  {% endif %}
 </head>
 <body>
-    <div style="max-width:800px;margin:40px auto;padding:0 20px">
-        <a href="/dashboard" style="font-size:0.875rem;color:#6b7280">← Painel</a>
+  <div class="dash-wrap">
 
-        <h1 style="margin-top:16px">{{ formulario.title }}</h1>
-        <p style="color:#6b7280">Status: <strong>{{ formulario.status }}</strong></p>
+    {# ─── Modo drill-down ─── #}
+    {% if modo_drill %}
 
-        <div style="display:flex;gap:12px;margin-top:20px;align-items:center">
-            <a href="/formularios/{{ formulario.id }}/editar">Editar</a>
+    <a href="/formularios/{{ formulario.id }}/painel" class="btn-voltar">← Voltar ao painel</a>
 
-            {% if formulario.status == "draft" %}
-            <form method="post" action="/formularios/{{ formulario.id }}/publicar">
-                <button type="submit" class="btn-primario" style="width:auto;padding:8px 16px">Publicar</button>
-            </form>
-            {% endif %}
-
-            {% if formulario.status == "active" %}
-            <button
-                onclick="if(confirm('Encerrar este formulário? Ele ficará inacessível para novos respondentes.')) { fetch('/formularios/{{ formulario.id }}/encerrar', {method:'POST'}).then(() => location.reload()) }"
-                style="padding:8px 16px;background:#dc2626;color:#fff;border:none;border-radius:6px;cursor:pointer">
-                Encerrar
-            </button>
-            {% endif %}
-        </div>
-
-        <p style="margin-top:32px;color:#6b7280;font-size:0.875rem">
-            Painel completo disponível na spec 09.
-        </p>
+    <div class="drill-header">
+      <h2>{{ detalhe.resposta.respondent_name or 'Anônimo' }}</h2>
+      <p>
+        {% if detalhe.resposta.respondent_email %}{{ detalhe.resposta.respondent_email }}{% endif %}
+        {% if detalhe.resposta.submitted_at %}
+          &nbsp;·&nbsp; {{ detalhe.resposta.submitted_at.strftime('%d/%m/%Y %H:%M') }}
+        {% endif %}
+      </p>
     </div>
+
+    <div class="drill-secao">
+      <h3>Classificação</h3>
+      <p style="font-size:1rem;font-weight:600;color:#1a1a1a">
+        {% if detalhe.grupo %}{{ detalhe.grupo.name }}{% else %}Sem classificação{% endif %}
+      </p>
+    </div>
+
+    <div class="drill-secao">
+      <h3>Respostas</h3>
+      {% for item in detalhe.respostas_formatadas %}
+      <div class="drill-row">
+        <div class="drill-pergunta">{{ item.texto }}</div>
+        <div class="drill-resposta">{{ item.valor }}</div>
+      </div>
+      {% endfor %}
+    </div>
+
+    {% if detalhe.tem_variaveis %}
+    <div class="drill-secao">
+      <h3>Pontuações</h3>
+      {% for nome, score in detalhe.resposta.variable_scores.items() %}
+      <div class="drill-row">
+        <div class="drill-pergunta">{{ nome }}</div>
+        <div class="drill-resposta">{{ score }}</div>
+      </div>
+      {% endfor %}
+      <div style="max-width:300px;margin-top:20px">
+        <canvas id="radar-individual"></canvas>
+      </div>
+      <script>
+      new Chart(document.getElementById('radar-individual'), {
+        type: 'radar',
+        data: {
+          labels: {{ detalhe.nomes_variaveis | tojson }},
+          datasets: [{
+            label: 'Pontuação',
+            data: {{ detalhe.radar_dados | tojson }},
+            fill: true,
+            backgroundColor: 'rgba(37,99,235,0.15)',
+            borderColor: 'rgb(37,99,235)',
+            pointBackgroundColor: 'rgb(37,99,235)',
+          }]
+        },
+        options: { scales: { r: { beginAtZero: true } } }
+      });
+      </script>
+    </div>
+    {% endif %}
+
+    {# ─── Modo painel normal ─── #}
+    {% else %}
+
+    <a href="/dashboard" class="btn-voltar">← Painel</a>
+
+    <div class="painel-header">
+      <div class="painel-header-top">
+        <div>
+          <h1>{{ formulario.title }}</h1>
+          <span class="status-badge status-{{ formulario.status }}" style="margin-top:6px;display:inline-block">{{ formulario.status }}</span>
+        </div>
+        <div class="painel-acoes">
+          <a href="/formularios/{{ formulario.id }}/editar" class="btn-neutro">Editar</a>
+          {% if formulario.status == 'draft' %}
+          <form method="post" action="/formularios/{{ formulario.id }}/publicar" style="display:inline">
+            <button type="submit" class="btn-acao">Publicar</button>
+          </form>
+          {% endif %}
+          {% if formulario.status == 'active' %}
+          <button
+            class="btn-perigo"
+            onclick="if(confirm('Encerrar este formulário? Ele ficará inacessível para novos respondentes.')) { fetch('/formularios/{{ formulario.id }}/encerrar', {method:'POST'}).then(r => r.ok && location.reload()) }">
+            Encerrar
+          </button>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+
+    <div class="painel-abas">
+      <button class="aba-btn ativa" onclick="trocarAba('respostas', this)">Respostas</button>
+      <button class="aba-btn" onclick="trocarAba('compartilhar', this)">Compartilhar</button>
+    </div>
+
+    {# ── Aba Respostas ── #}
+    <div id="aba-respostas" class="aba-conteudo ativa">
+
+      <div class="resumo-grupos">
+        {% for r in resumos_grupos %}
+        <div class="resumo-card">
+          <div class="resumo-card-num">{{ r.contagem }}</div>
+          <div class="resumo-card-nome">{{ r.nome }}</div>
+        </div>
+        {% else %}
+        <p style="color:#9ca3af;font-size:0.9375rem">Nenhuma resposta ainda.</p>
+        {% endfor %}
+      </div>
+
+      {% if tem_variaveis and radar_por_grupo %}
+      <div class="radares-wrap">
+        {% for rg in radar_por_grupo %}
+        <div class="radar-card">
+          <div class="radar-card-titulo">{{ rg.nome }}</div>
+          <canvas id="radar-grupo-{{ loop.index0 }}" width="248" height="248"></canvas>
+          <script>
+          new Chart(document.getElementById('radar-grupo-{{ loop.index0 }}'), {
+            type: 'radar',
+            data: {
+              labels: {{ nomes_variaveis | tojson }},
+              datasets: [{
+                label: '{{ rg.nome }}',
+                data: {{ rg.dados | tojson }},
+                fill: true,
+                backgroundColor: 'rgba(37,99,235,0.15)',
+                borderColor: 'rgb(37,99,235)',
+                pointBackgroundColor: 'rgb(37,99,235)',
+              }]
+            },
+            options: {
+              scales: { r: { beginAtZero: true } },
+              plugins: { legend: { display: false } }
+            }
+          });
+          </script>
+        </div>
+        {% endfor %}
+      </div>
+      {% endif %}
+
+      <h2 style="font-size:0.9375rem;font-weight:600;color:#374151;margin-bottom:12px">Respondentes</h2>
+      {% if respondentes %}
+      <table class="dash-tabela">
+        <thead>
+          <tr>
+            <th>Nome</th>
+            <th>Email</th>
+            <th>Grupo</th>
+            <th>Data</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for r in respondentes %}
+          <tr>
+            <td>{{ r.nome }}</td>
+            <td>{{ r.email or '—' }}</td>
+            <td>{{ r.grupo or 'Sem classificação' }}</td>
+            <td>{{ r.data.strftime('%d/%m/%Y %H:%M') if r.data else '—' }}</td>
+            <td>
+              <a href="/formularios/{{ formulario.id }}/painel/resposta/{{ r.response_id }}">Ver detalhes</a>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      {% else %}
+      <p class="dash-vazio">Nenhum respondente ainda.</p>
+      {% endif %}
+
+    </div>
+
+    {# ── Aba Compartilhar ── #}
+    <div id="aba-compartilhar" class="aba-conteudo">
+      <p style="font-size:0.9375rem;color:#6b7280;margin-bottom:14px">Link público para o respondente:</p>
+      <div class="link-compartilhar">
+        <input
+          type="text"
+          id="link-publico"
+          value="{{ request.base_url }}r/{{ formulario.id }}"
+          readonly
+        >
+        <button class="btn-acao" onclick="copiarLink()">Copiar</button>
+      </div>
+      <p id="msg-copiado" style="font-size:0.875rem;color:#16a34a;margin-top:8px;display:none">Link copiado!</p>
+    </div>
+
+    <script>
+    function trocarAba(nome, btn) {
+      document.querySelectorAll('.aba-btn').forEach(b => b.classList.remove('ativa'));
+      document.querySelectorAll('.aba-conteudo').forEach(c => c.classList.remove('ativa'));
+      btn.classList.add('ativa');
+      document.getElementById('aba-' + nome).classList.add('ativa');
+    }
+
+    function copiarLink() {
+      var input = document.getElementById('link-publico');
+      navigator.clipboard.writeText(input.value).then(function() {
+        var msg = document.getElementById('msg-copiado');
+        msg.style.display = 'block';
+        setTimeout(function() { msg.style.display = 'none'; }, 2000);
+      });
+    }
+    </script>
+
+    {% endif %}
+
+  </div>
 </body>
 </html>
