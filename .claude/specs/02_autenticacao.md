@@ -51,3 +51,6 @@ Implementa cadastro e login de mestres com JWT em cookie httponly, as funções 
 - Formulários de cadastro/login submetidos via `application/x-www-form-urlencoded` (Form do FastAPI), não JSON
 - Redirect após login/cadastro → `/dashboard`
 - Erros de autenticação → re-render do template com mensagem, não redirect
+
+---
+**Status:** concluida em 2026-06-05
