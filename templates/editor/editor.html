@@ -1,17 +1,78 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Editor — FormMaster</title>
-    <link rel="stylesheet" href="/static/css/base.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Editor — {{ formulario.title | e }}</title>
+  <link rel="stylesheet" href="/static/css/base.css">
+  <link rel="stylesheet" href="/static/css/editor.css">
 </head>
 <body>
-    <div style="max-width:800px;margin:40px auto;padding:0 20px">
-        <a href="/formularios/{{ formulario.id }}/painel" style="font-size:0.875rem;color:#6b7280">← Painel</a>
-        <h1 style="margin-top:16px">{{ formulario.title }}</h1>
-        <p style="color:#6b7280;font-size:0.875rem">Editor completo disponível na spec 05. Dados brutos:</p>
-        <pre style="background:#f5f5f5;padding:16px;border-radius:6px;overflow:auto;font-size:0.8rem;margin-top:12px">{{ formulario_json }}</pre>
+
+  <div class="editor-barra">
+    <a href="/formularios/{{ formulario.id }}/painel" class="editor-voltar">← Painel</a>
+    <input type="text" id="titulo-form" class="editor-titulo" value="{{ formulario.title | e }}">
+    <span class="editor-status status-{{ formulario.status }}">{{ formulario.status }}</span>
+    <div class="editor-acoes">
+      <span id="feedback-save" class="feedback-save"></span>
+      <button class="btn-secundario" onclick="salvar()">Salvar</button>
+      {% if formulario.status == 'draft' %}
+      <button class="btn-primario" onclick="publicar()">Publicar</button>
+      {% endif %}
+      {% if formulario.status == 'active' %}
+      <button class="btn-perigo" onclick="encerrar()">Encerrar</button>
+      {% endif %}
     </div>
+  </div>
+
+  <div class="editor-corpo">
+
+    <div class="card-secao">
+      <h2>Configurações gerais</h2>
+      <div id="config-corpo"></div>
+    </div>
+
+    <div class="card-secao">
+      <h2>Perguntas</h2>
+      <div class="lista-itens" id="perguntas-lista"></div>
+      <button class="btn-add" onclick="adicionarPergunta()">+ Adicionar pergunta</button>
+    </div>
+
+    <div class="card-secao">
+      <h2>Grupos de classificação</h2>
+      <div class="lista-itens" id="grupos-lista"></div>
+      <button class="btn-add" onclick="adicionarGrupo()">+ Adicionar grupo</button>
+    </div>
+
+    <div class="card-secao">
+      <h2>Variáveis de pontuação</h2>
+      <div class="lista-itens" id="variaveis-lista"></div>
+      <button class="btn-add" onclick="adicionarVariavel()">+ Adicionar variável</button>
+    </div>
+
+    <div class="card-secao">
+      <h2>Regras de classificação</h2>
+      <p style="font-size:0.8125rem;color:#6b7280;margin-bottom:12px">
+        Avaliadas em ordem. <code>assign_group</code> encerra a avaliação imediatamente.
+      </p>
+      <div class="lista-itens" id="regras-lista"></div>
+      <button class="btn-add" onclick="adicionarRegra()">+ Adicionar regra</button>
+    </div>
+
+    <div class="card-secao">
+      <h2>Thresholds finais</h2>
+      <p style="font-size:0.8125rem;color:#6b7280;margin-bottom:12px">
+        Avaliados após as regras. Arraste para definir a prioridade dos grupos.
+      </p>
+      <div id="thresholds-lista"></div>
+      <div id="thresholds-adicionar"></div>
+    </div>
+
+  </div>
+
+  <script>
+    window.__dados = {{ formulario_json | safe }};
+  </script>
+  <script src="/static/js/editor.js"></script>
 </body>
 </html>

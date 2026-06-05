@@ -76,3 +76,6 @@ Implementa o `editor.html` completo com todas as seções de configuração do f
 - Formulários da IA → campos conceituais exibidos como placeholder; o mestre é responsável pelo mapeamento antes de salvar; sem validação automática de mapeamento no frontend
 - Aviso visual para grupo sem `finish_message` → texto em cor de atenção ao lado do campo; não bloqueia save
 - Feedback de save → mensagem discreta ("Salvo com sucesso" / "Erro ao salvar") exibida por alguns segundos
+
+---
+**Status:** concluida em 2026-06-05
