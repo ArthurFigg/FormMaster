@@ -16,12 +16,12 @@ templates = Jinja2Templates(directory="templates")
 
 @router.get("/login", response_class=HTMLResponse)
 def pagina_login(request: Request):
-    return templates.TemplateResponse("auth/login.html", {"request": request})
+    return templates.TemplateResponse(request, "auth/login.html")
 
 
 @router.get("/cadastro", response_class=HTMLResponse)
 def pagina_cadastro(request: Request):
-    return templates.TemplateResponse("auth/cadastro.html", {"request": request})
+    return templates.TemplateResponse(request, "auth/cadastro.html")
 
 
 @router.post("/cadastro")
@@ -34,8 +34,7 @@ def cadastrar(
     existente = db.query(Usuario).filter(Usuario.email == email).first()
     if existente:
         return templates.TemplateResponse(
-            "auth/cadastro.html",
-            {"request": request, "erro": "E-mail já cadastrado."},
+            request, "auth/cadastro.html", {"erro": "E-mail já cadastrado."}
         )
 
     usuario = Usuario(email=email, password_hash=hash_senha(senha))
@@ -60,8 +59,7 @@ def login(
     usuario = db.query(Usuario).filter(Usuario.email == email).first()
     if not usuario or not verificar_senha(senha, usuario.password_hash):
         return templates.TemplateResponse(
-            "auth/login.html",
-            {"request": request, "erro": "E-mail ou senha incorretos."},
+            request, "auth/login.html", {"erro": "E-mail ou senha incorretos."}
         )
 
     _vincular_respostas(db, usuario.id, email)

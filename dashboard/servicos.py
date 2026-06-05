@@ -75,6 +75,7 @@ def listar_respondentes(db: Session, form_id: uuid.UUID) -> list[ItemRespondente
                 email=r.respondent_email,
                 grupo=grupo_nome,
                 data=r.submitted_at,
+                scores=r.variable_scores or {},
             )
         )
     return resultado

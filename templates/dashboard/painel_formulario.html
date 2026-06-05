@@ -116,11 +116,17 @@
     {# ── Aba Respostas ── #}
     <div id="aba-respostas" class="aba-conteudo ativa">
 
+      {% set total_respostas = resumos_grupos | sum(attribute='contagem') %}
       <div class="resumo-grupos">
         {% for r in resumos_grupos %}
+        {% set pct = ((r.contagem / total_respostas * 100) | round(0) | int) if total_respostas > 0 else 0 %}
         <div class="resumo-card">
           <div class="resumo-card-num">{{ r.contagem }}</div>
           <div class="resumo-card-nome">{{ r.nome }}</div>
+          <div class="resumo-card-barra-bg">
+            <div class="resumo-card-barra-fill" style="width:{{ pct }}%"></div>
+          </div>
+          <div class="resumo-card-pct">{{ pct }}%</div>
         </div>
         {% else %}
         <p style="color:#9ca3af;font-size:0.9375rem">Nenhuma resposta ainda.</p>
@@ -128,57 +134,88 @@
       </div>
 
       {% if tem_variaveis and radar_por_grupo %}
-      <div class="radares-wrap">
-        {% for rg in radar_por_grupo %}
-        <div class="radar-card">
-          <div class="radar-card-titulo">{{ rg.nome }}</div>
-          <canvas id="radar-grupo-{{ loop.index0 }}" width="248" height="248"></canvas>
-          <script>
-          new Chart(document.getElementById('radar-grupo-{{ loop.index0 }}'), {
-            type: 'radar',
-            data: {
-              labels: {{ nomes_variaveis | tojson }},
-              datasets: [{
-                label: '{{ rg.nome }}',
-                data: {{ rg.dados | tojson }},
-                fill: true,
-                backgroundColor: 'rgba(37,99,235,0.15)',
-                borderColor: 'rgb(37,99,235)',
-                pointBackgroundColor: 'rgb(37,99,235)',
-              }]
-            },
+      <div style="background:#fff;border:1px solid #e5e7eb;border-radius:8px;padding:20px;margin-bottom:32px">
+        <div style="font-size:0.875rem;font-weight:600;color:#374151;margin-bottom:16px">Pontuação média por grupo</div>
+        <canvas id="grafico-grupos" height="90"></canvas>
+        <script>
+        (function() {
+          var grupos   = {{ radar_por_grupo | map(attribute='nome') | list | tojson }};
+          var variaveis = {{ nomes_variaveis | tojson }};
+          var matrix   = {{ radar_por_grupo | map(attribute='dados') | list | tojson }};
+          var cores = ['#2563eb','#16a34a','#dc2626','#d97706','#7c3aed','#0891b2'];
+          var datasets = variaveis.map(function(nome, i) {
+            return {
+              label: nome,
+              data: matrix.map(function(linha) { return linha[i]; }),
+              backgroundColor: cores[i % cores.length],
+              borderRadius: 4,
+            };
+          });
+          new Chart(document.getElementById('grafico-grupos'), {
+            type: 'bar',
+            data: { labels: grupos, datasets: datasets },
             options: {
-              scales: { r: { beginAtZero: true } },
-              plugins: { legend: { display: false } }
+              responsive: true,
+              plugins: { legend: { position: 'bottom' } },
+              scales: { y: { beginAtZero: true, grid: { color: '#f3f4f6' } } }
             }
           });
-          </script>
-        </div>
-        {% endfor %}
+        })();
+        </script>
       </div>
       {% endif %}
+
+      {% set cores_grupo = ['#16a34a','#2563eb','#d97706','#dc2626','#7c3aed','#0891b2'] %}
+      {% set grupo_cor = {} %}
+      {% for rg in resumos_grupos %}
+        {% if rg.nome != 'Sem classificação' %}
+          {% set _ = grupo_cor.update({rg.nome: cores_grupo[loop.index0 % cores_grupo|length]}) %}
+        {% endif %}
+      {% endfor %}
 
       <h2 style="font-size:0.9375rem;font-weight:600;color:#374151;margin-bottom:12px">Respondentes</h2>
       {% if respondentes %}
       <table class="dash-tabela">
         <thead>
           <tr>
-            <th>Nome</th>
-            <th>Email</th>
-            <th>Grupo</th>
+            <th>Respondente</th>
+            <th>Classificação</th>
+            {% for nome_var in nomes_variaveis %}
+            <th>{{ nome_var }}</th>
+            {% endfor %}
             <th>Data</th>
             <th></th>
           </tr>
         </thead>
         <tbody>
           {% for r in respondentes %}
+          {% set cor = grupo_cor.get(r.grupo, '#6b7280') %}
           <tr>
-            <td>{{ r.nome }}</td>
-            <td>{{ r.email or '—' }}</td>
-            <td>{{ r.grupo or 'Sem classificação' }}</td>
-            <td>{{ r.data.strftime('%d/%m/%Y %H:%M') if r.data else '—' }}</td>
             <td>
-              <a href="/formularios/{{ formulario.id }}/painel/resposta/{{ r.response_id }}">Ver detalhes</a>
+              <div style="font-weight:500;color:#111827">{{ r.nome }}</div>
+              {% if r.email %}<div style="font-size:0.8125rem;color:#6b7280">{{ r.email }}</div>{% endif %}
+            </td>
+            <td>
+              <span class="grupo-badge" style="background:{{ cor }}1a;color:{{ cor }};border-color:{{ cor }}40">
+                {{ r.grupo or 'Sem classificação' }}
+              </span>
+            </td>
+            {% for nome_var in nomes_variaveis %}
+            {% set score = r.scores.get(nome_var, 0) %}
+            <td>
+              <div style="display:flex;align-items:center;gap:8px">
+                <span style="font-weight:600;font-size:0.9375rem;color:#111827;min-width:24px">{{ score }}</span>
+                <div style="flex:1;height:6px;background:#f3f4f6;border-radius:3px;min-width:48px">
+                  <div style="height:100%;width:{{ [score, 100] | min }}%;background:{{ cor }};border-radius:3px"></div>
+                </div>
+              </div>
+            </td>
+            {% endfor %}
+            <td style="color:#6b7280;font-size:0.875rem;white-space:nowrap">
+              {{ r.data.strftime('%d/%m/%Y') if r.data else '—' }}
+            </td>
+            <td>
+              <a href="/formularios/{{ formulario.id }}/painel/resposta/{{ r.response_id }}" class="link-detalhes">Detalhes</a>
             </td>
           </tr>
           {% endfor %}

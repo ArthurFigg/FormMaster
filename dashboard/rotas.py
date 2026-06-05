@@ -36,9 +36,9 @@ def drill_down_resposta(
         raise HTTPException(status_code=404)
 
     return templates.TemplateResponse(
+        request,
         "dashboard/painel_formulario.html",
         {
-            "request": request,
             "formulario": formulario,
             "modo_drill": True,
             "detalhe": detalhe,

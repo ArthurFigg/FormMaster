@@ -123,6 +123,7 @@ Regras obrigatórias:
 
 
 def chamar_gemini(prompt: str) -> dict:
+    import logging
     try:
         cliente = genai.Client(api_key=configuracoes.GEMINI_API_KEY)
         resposta = cliente.models.generate_content(model=_MODELO, contents=prompt)
@@ -132,6 +133,7 @@ def chamar_gemini(prompt: str) -> dict:
         texto = re.sub(r"\s*```$", "", texto, flags=re.MULTILINE)
         return json.loads(texto)
     except Exception as e:
+        logging.exception("Falha ao chamar Gemini")
         raise ValueError(f"Falha ao chamar Gemini: {e}") from e
 
 

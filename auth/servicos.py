@@ -1,9 +1,9 @@
 import uuid
 from datetime import datetime, timedelta, timezone
 
+import bcrypt
 from fastapi import Cookie, Depends, HTTPException
 from jose import JWTError, jwt
-from passlib.context import CryptContext
 from sqlalchemy.orm import Session
 
 from auth.orm import Usuario
@@ -12,8 +12,6 @@ from database import get_db
 
 _ALGORITMO = "HS256"
 _EXPIRACAO_DIAS = 7
-
-_contexto_cripto = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 
 def gerar_token(usuario_id: uuid.UUID) -> str:
@@ -34,11 +32,11 @@ def verificar_token(token: str) -> uuid.UUID:
 
 
 def hash_senha(senha: str) -> str:
-    return _contexto_cripto.hash(senha)
+    return bcrypt.hashpw(senha.encode(), bcrypt.gensalt()).decode()
 
 
 def verificar_senha(senha: str, hash_: str) -> bool:
-    return _contexto_cripto.verify(senha, hash_)
+    return bcrypt.checkpw(senha.encode(), hash_.encode())
 
 
 def get_usuario_atual(

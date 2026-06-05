@@ -30,12 +30,11 @@ def exibir_formulario(
     if not formulario or formulario.status == 'draft':
         raise HTTPException(status_code=404)
     if formulario.status == 'closed':
-        return templates.TemplateResponse(
-            "responder/encerrado.html", {"request": request}
-        )
+        return templates.TemplateResponse(request, "responder/encerrado.html")
     return templates.TemplateResponse(
+        request,
         "responder/formulario.html",
-        {"request": request, "formulario": formulario, "usuario": usuario},
+        {"formulario": formulario, "usuario": usuario},
     )
 
 
@@ -106,9 +105,9 @@ def tela_fim(
             grupo = db.get(Grupo, resposta.assigned_group_id)
 
     return templates.TemplateResponse(
+        request,
         "responder/fim.html",
         {
-            "request": request,
             "formulario": formulario,
             "resposta": resposta,
             "grupo": grupo,

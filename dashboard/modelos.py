@@ -22,3 +22,4 @@ class ItemRespondente:
     email: str | None
     grupo: str | None
     data: datetime | None
+    scores: dict[str, int]

@@ -41,3 +41,8 @@ Thumbs.db
 
 # Alembic (gerado automaticamente — não versionar)
 alembic/versions/__pycache__/
+
+# Banco SQLite de desenvolvimento
+*.db
+*.db-shm
+*.db-wal

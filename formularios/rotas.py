@@ -48,9 +48,9 @@ def dashboard(
 
     historico = buscar_historico_usuario(db, usuario.id)
     return templates.TemplateResponse(
+        request,
         "dashboard/index.html",
         {
-            "request": request,
             "usuario": usuario,
             "formularios": formularios_lista,
             "contagens": contagens,
@@ -73,7 +73,7 @@ def wizard_ia_get(
     request: Request,
     usuario: Usuario = Depends(get_usuario_atual),
 ):
-    return templates.TemplateResponse("wizard_ia/wizard.html", {"request": request})
+    return templates.TemplateResponse(request, "wizard_ia/wizard.html")
 
 
 @router.post("/formularios/wizard")
@@ -92,9 +92,9 @@ def wizard_ia_post(
 
     def re_renderizar(erro: str):
         return templates.TemplateResponse(
+            request,
             "wizard_ia/wizard.html",
             {
-                "request": request,
                 "erro": erro,
                 "objetivo": objetivo,
                 "grupos": grupos,
@@ -135,8 +135,9 @@ def editar_formulario(
         raise HTTPException(status_code=403, detail="Acesso negado.")
     dados = repo.formulario_para_dict(formulario)
     return templates.TemplateResponse(
+        request,
         "editor/editor.html",
-        {"request": request, "formulario": dados, "formulario_json": json.dumps(dados, indent=2, ensure_ascii=False)},
+        {"formulario": dados, "formulario_json": json.dumps(dados, indent=2, ensure_ascii=False)},
     )
 
 
@@ -197,9 +198,9 @@ def painel_formulario(
     ]
 
     return templates.TemplateResponse(
+        request,
         "dashboard/painel_formulario.html",
         {
-            "request": request,
             "formulario": formulario,
             "resumos_grupos": resumos_grupos,
             "respondentes": respondentes,
