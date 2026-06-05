@@ -2,7 +2,7 @@ import uuid
 from datetime import datetime, timezone
 
 from sqlalchemy import Boolean, DateTime, ForeignKey, Integer, String, Text
-from sqlalchemy.dialects.postgresql import JSONB, UUID
+from sqlalchemy import JSON, Uuid
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from database import Base
@@ -11,8 +11,8 @@ from database import Base
 class Formulario(Base):
     __tablename__ = "forms"
 
-    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    owner_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), ForeignKey("users.id"), nullable=False)
+    id: Mapped[uuid.UUID] = mapped_column(Uuid(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    owner_id: Mapped[uuid.UUID] = mapped_column(Uuid(as_uuid=True), ForeignKey("users.id"), nullable=False)
     title: Mapped[str] = mapped_column(String, nullable=False, default="Novo formulário")
     status: Mapped[str] = mapped_column(String, nullable=False, default="draft")
     block_resubmit: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
@@ -44,12 +44,12 @@ class Formulario(Base):
 class Pergunta(Base):
     __tablename__ = "questions"
 
-    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    form_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), ForeignKey("forms.id"), nullable=False)
+    id: Mapped[uuid.UUID] = mapped_column(Uuid(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    form_id: Mapped[uuid.UUID] = mapped_column(Uuid(as_uuid=True), ForeignKey("forms.id"), nullable=False)
     order: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
     text: Mapped[str] = mapped_column(String, nullable=False)
     type: Mapped[str] = mapped_column(String, nullable=False)
-    options: Mapped[dict | None] = mapped_column(JSONB, nullable=True)
+    options: Mapped[dict | None] = mapped_column(JSON, nullable=True)
     required: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
 
     formulario: Mapped["Formulario"] = relationship("Formulario", back_populates="perguntas")
@@ -58,8 +58,8 @@ class Pergunta(Base):
 class Grupo(Base):
     __tablename__ = "groups"
 
-    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    form_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), ForeignKey("forms.id"), nullable=False)
+    id: Mapped[uuid.UUID] = mapped_column(Uuid(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    form_id: Mapped[uuid.UUID] = mapped_column(Uuid(as_uuid=True), ForeignKey("forms.id"), nullable=False)
     name: Mapped[str] = mapped_column(String, nullable=False)
     finish_message: Mapped[str | None] = mapped_column(Text, nullable=True)
 
@@ -72,8 +72,8 @@ class Grupo(Base):
 class Variavel(Base):
     __tablename__ = "variables"
 
-    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    form_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), ForeignKey("forms.id"), nullable=False)
+    id: Mapped[uuid.UUID] = mapped_column(Uuid(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    form_id: Mapped[uuid.UUID] = mapped_column(Uuid(as_uuid=True), ForeignKey("forms.id"), nullable=False)
     name: Mapped[str] = mapped_column(String, nullable=False)
     initial_value: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
 
@@ -83,10 +83,10 @@ class Variavel(Base):
 class Regra(Base):
     __tablename__ = "rules"
 
-    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    form_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), ForeignKey("forms.id"), nullable=False)
+    id: Mapped[uuid.UUID] = mapped_column(Uuid(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    form_id: Mapped[uuid.UUID] = mapped_column(Uuid(as_uuid=True), ForeignKey("forms.id"), nullable=False)
     order: Mapped[int] = mapped_column(Integer, nullable=False)
-    conditions: Mapped[list] = mapped_column(JSONB, nullable=False, default=list)
+    conditions: Mapped[list] = mapped_column(JSON, nullable=False, default=list)
     logical_operator: Mapped[str] = mapped_column(String, nullable=False, default="AND")
     action_type: Mapped[str] = mapped_column(String, nullable=False)
     action_target: Mapped[str] = mapped_column(String, nullable=False)
@@ -98,12 +98,12 @@ class Regra(Base):
 class GrupoThreshold(Base):
     __tablename__ = "group_thresholds"
 
-    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    id: Mapped[uuid.UUID] = mapped_column(Uuid(as_uuid=True), primary_key=True, default=uuid.uuid4)
     group_id: Mapped[uuid.UUID] = mapped_column(
-        UUID(as_uuid=True), ForeignKey("groups.id", ondelete="CASCADE"), nullable=False
+        Uuid(as_uuid=True), ForeignKey("groups.id", ondelete="CASCADE"), nullable=False
     )
     variable_id: Mapped[uuid.UUID] = mapped_column(
-        UUID(as_uuid=True), ForeignKey("variables.id"), nullable=False
+        Uuid(as_uuid=True), ForeignKey("variables.id"), nullable=False
     )
     operator: Mapped[str] = mapped_column(String, nullable=False)
     value: Mapped[int] = mapped_column(Integer, nullable=False)
