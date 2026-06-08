@@ -4,6 +4,14 @@ Plataforma web para criação de formulários com triagem automática. O mestre 
 
 ---
 
+## Screenshots
+
+| Painel principal | Painel do formulário |
+|---|---|
+| ![Painel principal do mestre, com a lista de formulários criados](docs/screenshots/tela-inicial.png) | ![Painel de um formulário ativo, com contagem por grupo e gráfico de pontuação média](docs/screenshots/painel-formulario.png) |
+
+---
+
 ## Funcionalidades
 
 - **Criação assistida por IA** — wizard guiado gera perguntas, variáveis, regras e grupos automaticamente via Gemini Flash
